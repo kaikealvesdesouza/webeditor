@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+	<style>
+	#camera{
+		color:green;
+		font-size:100px;
+		position:fixed;
+		bottom:0;
+		width:100%;
+		background-color:#C0C0C0;
+		border-radius: 25px;
+	}
+	.dcell{
+		padding:5px;
+		width:100%;
+		/*height:inherit;*/
+		position:relative;
+		background-color:black;
+		color:white;
+	}
+	td{
+		height:240px;
+		width:250px;
+	}
+	.overflow-block{
+		width:100%;
+		height:100%;
+		background-color:black;
+	}
+	.spinner-grow {
+		width:10px!important;
+		height:15px!important;
+		border-radius:0!important;
+	}
+	.tdcol:hover {
+    background-color: #242320!important;
+	}
+
+	</style>
+
+</head>
+<body>
+<div>
+<!--class="table-responsive"-->
+
+<div id="display">
+	
+	<table class="table table-dark align-middle table-striped table-bordered" id="table" border="1">
+		<thead>
+			<th><div contenteditable="true">Hello world!</div></th>
+		</thead>
+		<tbody>
+		<tr>
+			<td>	
+				<div class="overflow-block overflow-auto dcell" contenteditable="true" onclick="selectCol(0,0)">Codifique aqui!</div>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	
+</div>
+
+<button class="btn btn-primary" onclick="addColumn()">add col</button>
+<button class="btn btn-primary" onclick="addRow()">add row</button>
+<button class="btn btn-success" onclick="download()">download</button>
+<button class="btn btn-success" onclick="play()">play</button>
+
+<div id="camera"></div>
+
+<script type="text/javascript">
+	
+	function download(){
+		let html = "";
+		for(let i=0;i<table.length;i++)
+		{
+		 	let row = table[i];
+		 	
+		 	for(let c=0; c<row.length; c++)
+		 	{
+		 		let col = row[c];
+		 		html += col.flat().join("");
+		 	}
+		}
+		const winUrl = URL.createObjectURL(
+    new File([html], { type: "text/html" })
+		);
+		let link=document.createElement("a");
+		link.setAttribute("download","codigo.html");
+		link.setAttribute("href",winUrl);
+		document.body.appendChild(link);
+		link.click();
+		//document.body.removeChild(link);
+  //window.URL.revokeObjectURL(winUrl);
+	}
+	
+	function play(){
+		let parser = new DOMParser();
+		
+		let html = "";
+		for(let i=0;i<table.length;i++)
+		{
+		 	let row = table[i];
+		 	
+		 	for(let c=0; c<row.length; c++)
+		 	{
+		 		let col = row[c];
+		 		html += col.flat().join("");
+		 	}
+		}
+		//const doc = parser.parseFromString(html, 'text/html');
+		
+		const winUrl = URL.createObjectURL(
+    new Blob([html], { type: "text/html" })
+		);
+		var win = window.open(winUrl, "_blank").focus();
+
+	}
+	
+	function highlword(word){
+		let color="green";
+   		el = word.trim();
+   		if(el=="function"){
+   			color = "#7b32a8";
+   		}
+   		if(el=="let"){
+   			color = "#a8327d";
+   		}
+   		if(el=="return"){
+   			color = "#5432a8";
+   		}
+		   return color;
+			
+	}
+	function highlchar(word){
+		  let chs   = [];
+   		let w     = "";
+   		let el    = word;
+   		let color = "green";
+   		let html  = [];
+   		for(c=0;c<el.length;c++)
+   		{
+   			w += el[c];
+   			
+   			
+   			if(Number.isInteger(parseInt(el[c]))){
+   														color="#fff";
+   													}
+   			if(el[c]==';')      {
+   														color="#ff03c8";
+   													}										
+   			if(el[c]=='"')      {
+   														color="#a86932";
+   													}	
+   			
+   			else if(el[c]=="=" || 
+   			          el[c]==">"||
+   			          el[c]=="<"||
+   			          el[c]=="|"||
+   			          el[c]=="+"||
+   			          el[c]==","){
+		 													color = "#3234a8";
+		 												 }
+		 		else if(el[c]=="("||
+		 						el[c]==")") {
+											 		 	 color = "#eb4034";
+											 			 w="";
+											 			}
+		 		else if(w=="for")   {
+											 				 color = "#52eb34";
+												 			 html[c-2]="<span style='color:" + color + "'>f</span>";
+												 			 html[c-1]="<span style='color:" + color + "'>o</span>";
+												 			 html[c]  ="<span style='color:" + color + "'>r</span>";
+												 			 w="";
+												 			 continue;
+										 			  } 
+   			else if(w=="let")   {
+											 				color = "#fcf005";
+											 				html[c-2]="<span style='color:" + color + "'>l</span>";
+											 				html[c-1]="<span style='color:" + color + "'>e</span>";
+											 				html[c]  ="<span style='color:" + color + "'>t</span>";
+											 				w="";
+											 				continue;
+   												 }
+				else               {
+								 				  		//html.push("<span style='color:" + color + "'>" + el[c] + "</span>");
+								 				  		//continue;
+								 			     }
+   			
+   			html.push("<span style='color:" + color + "'>" + el[c] + "</span>");
+   		}
+   		
+			return html;
+		  
+	}
+	function highlight(l,c,el){
+			let html  = []
+			let color = highlword(el);
+   		if( color !== "green" ){			
+																for(let i=0;i<el.length;i++)
+																{
+																	html.push("<span style='color:" + color + ";'>" + el[i] + "</span>");
+																}
+																return html;			
+   		                        }
+   		                          
+   		return highlchar(el);
+	}
+	
+	var table = [ [[[]]] ];
+	var thead = [["col-0"]];
+	var currentRow=0;
+	function addColumn(){
+		table[currentRow].push([[]]);
+		console.log(table[currentRow].length ," , ", thead[0].length);
+		if( table[currentRow].length > thead[0].length ){
+			thead[0].push("col-" + thead[0].length);
+		}
+		ln[currentRow]       .push([0]);
+	  //lc[currentRow][currentCol+1] = [0];
+		lc[currentRow][currentCol+1]=[]
+		lc[currentRow][currentCol+1][ ln[currentRow][currentCol + 1] ]=0;
+		OUTPUT();
+		
+	}
+	
+
+	var currentRow=0;
+	var currentCol=0;
+	function selectRow(r){
+		currentRow=r;
+	}
+	
+	function selectCol(r,c){
+		currentCol=c;
+		currentRow=r;
+	}
+	
+	function addRow(){
+		table.push([[[]]]);
+		ln.push([[0]]);
+		lc[currentRow+1]=[[0]];
+		OUTPUT();		
+	}
+	
+	
+	function OUTPUT(){
+		 let trs   = [];
+		 tableHTML = "<table id='table' class='table table-dark align-middle table-striped table-bordered table-hover' border='1'>";
+			
+		 tableHTML += "<thead>";
+		 
+		 for(let i=0;i<thead[0].length;i++)
+		 {
+			tableHTML += "<th><div contenteditable='true'>" + thead[0][i] + "</div></th>";
+		 }
+		 
+		 tableHTML += "</thead>";
+		 
+		 for(let i=0;i<table.length;i++)
+		 {
+		 	let row = table[i];
+		 	let tr  = [];
+		
+		 	for(let c=0; c<row.length; c++)
+		 	{
+		 		let col = row[c];
+		 	
+		 		tr.push("<td onclick='selectCol(" + i + "," + c + ")'><div class='overflow-block overflow-auto dcell tdcol'>"); 
+		 					
+		 			for(let l=0; l < col.length;l++)
+		 			{
+		 				
+		 				tr.push("<div>");
+		 				let line   = '';
+		 				let word   = "";
+		 				let coded  = "";
+		 				let chars  = col[l];
+		 				let str    = chars.join("");
+		 				let words  = str.split(/(\s+)/);
+		 				let cursor = [];
+		 				if(currentRow == i && currentCol == c && ln[currentRow][currentCol] == l){
+			 			   cursor = ["<span class='spinner-grow' role='status'></span>"] ;
+			 			}
+		        let sum   = 0;
+		 				for(let n=0; n < words.length;n++)
+		 				{			 
+								  html  = highlight(c, l, words[n]);
+								
+								for(let d=0;d<words[n].length;d++)
+								{
+								 	let curp = lc[currentRow][currentCol][ln[currentRow][currentCol]]-1;
+									let bool = ln[currentRow][currentCol] == l && curp == sum;
+									
+									if(sum > curp){
+																 cursor.splice(sum+1,0,html[d]);
+															  }
+									else          {
+																 cursor.splice(sum,0,html[d]);
+															  }
+									sum++;
+								}
+								                   							
+						  line = cursor.join('');							 
+			 			}
+			 			
+			 			
+		 				tr.push(line);
+		 				tr.push("</div>");	 
+		 			}
+		 		tr.push("</div></td>");
+		 	}
+		 	trs.push("<tr>" + tr.join(" ") + "</tr>");
+		 }
+		 tableHTML += trs.join(" ") + "</table>";
+		 
+		 document.getElementById("display").innerHTML = tableHTML;
+	}
+	
+	
+	let el       = document.getElementById("table");
+	
+	var textarea = document.createElement("textarea");
+	let ln       =[[0]];
+	let lc       =[[[0]]];
+	window.addEventListener("keydown", function (e) {
+		e.preventDefault();
+		if(e.key=="Shift"){
+			return true;
+		}
+		if(e.key=="Capslock"){
+			return true;
+		}
+		if(e.key=="Control"){
+			return true;
+		}
+		if(e.key=="AltGraph"){
+			return true;
+		}
+		if(e.key=="F5"){
+			return true;
+		}
+		if(e.key=="Enter"){
+			table[currentRow][currentCol].push(table[currentRow][currentCol][ ln[currentRow][currentCol] ].slice(lc[currentRow][currentCol][ln[currentRow][currentCol]]));
+			table[currentRow][currentCol][ ln[currentRow][currentCol] ] = table[currentRow][currentCol][ ln[currentRow][currentCol] ].slice(0,lc[currentRow][currentCol][ln[currentRow][currentCol]]);		
+			ln[currentRow][currentCol]++;
+			lc[currentRow][currentCol][ln[currentRow][currentCol]]=0;
+			OUTPUT();
+			return true;
+		}
+		if(e.key==" "){
+			
+		}
+		if(e.key=="Backspace"){ 
+			table[currentRow][currentCol][ ln[currentRow][currentCol] ].splice(lc[currentRow][currentCol][ln[currentRow][currentCol]]-1,1);
+			if(lc[currentRow][currentCol][ln[currentRow][currentCol]]>0){
+				lc[currentRow][currentCol][ln[currentRow][currentCol]]--;
+			}
+			OUTPUT();
+			return true;
+		}
+		if(e.key=="ArrowUp"){
+			if(ln[currentRow][currentCol]>0){
+				ln[currentRow][currentCol]--;
+			}
+			OUTPUT();
+			return true;
+		}
+		if(e.key=="ArrowDown"){
+			ln[currentRow][currentCol]++;
+			OUTPUT();
+			return true;
+		}
+		if(e.key=="ArrowLeft"){
+			if(lc[currentRow][currentCol][ln[currentRow][currentCol]]>0){
+				lc[currentRow][currentCol][ln[currentRow][currentCol]]--;
+			}
+			OUTPUT();
+			return true;
+		}
+		if(e.key=="ArrowRight"){
+			if(lc[currentRow][currentCol][ln[currentRow][currentCol]]<=table[currentRow][currentCol][ln[currentRow][currentCol]].length){
+				lc[currentRow][currentCol][ln[currentRow][currentCol]]++;
+			}
+			OUTPUT();
+			return true;
+		}
+		
+		if(!table[currentRow][currentCol][ ln[currentRow][currentCol] ][ lc[currentRow][currentCol][ ln[currentRow][currentCol] ] ]){		
+			//!important table[currentRow][currentCol][ ln[currentRow][currentCol] ][ lc[currentRow][currentCol][ln[currentRow][currentCol]] ]="";	
+		}
+		table[currentRow][currentCol][ ln[currentRow][currentCol] ].splice(lc[currentRow][currentCol][ln[currentRow][currentCol]], 0, e.key);
+
+		//increase cursor while key is pressed
+		//if(lc[currentRow][currentCol][ln[currentRow][currentCol]]<table[currentRow][currentCol][ln[currentRow][currentCol]].length){				
+		lc[currentRow][currentCol][ln[currentRow][currentCol]]++;
+				
+			//}
+		//console.log("qual a coluna? ",wcol(table[currentRow][currentCol][ ln[currentRow][currentCol] ],lc[currentRow][currentCol][ln[currentRow][currentCol]]));
+		OUTPUT();
+	});
+	
+	window.addEventListener("keyup", function (e) {
+		//log.textContent += ` ${e.code}`;
+	//	console.log("key " + e.key, " keyCode "+ e.code, " key == ''", e.key == "");
+		console.log("currentRow ",currentRow, " currentCol ",currentCol," linha ",ln[currentRow][currentCol]," col ",lc[currentRow][currentCol]);
+		//let txt=el.rows[currentRow+1].cells[currentCol].textContent;
+		//document.getElementById("camera").innerHTML=txt.substring(txt.length-25);
+		
+	});    
+	
+</script>
+<script></script>
+</body>
+</html>
